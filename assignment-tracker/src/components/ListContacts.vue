@@ -11,7 +11,7 @@
         <template v-slot:no-data="{ icon, message, filter }">
           <div class="full-width row flex-center text-accent q-gutter-sm">
             <q-icon size="2em" name="sentiment_dissatisfied" />
-            <span>Error 404. You have no friends!</span>
+            <span>Error 404. You may have lots of friends but none of them want you to have their contact or talk to them ever.</span>
             <q-icon size="2em" :name="filter ? 'filter_b_and_w' : icon" />
           </div>
         </template>
