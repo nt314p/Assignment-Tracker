@@ -4,9 +4,7 @@ const accountSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     username: String,
     name: String,
-    /*
-    hashedPassword: String, 
-    salt: String,
+    hashedPassword: String/*
     courses: [String]*/
 });
 

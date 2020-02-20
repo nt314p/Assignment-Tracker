@@ -1,13 +1,14 @@
-import Vue from 'vue'
-import App from './App.vue'
-import ListComponent from './components/ListContacts.vue'
-import SearchComponent from './components/SearchContact.vue'
-import CreateComponent from './components/CreateContact.vue'
-import EditComponent from './components/EditContact.vue'
-import ViewComponent from './components/ViewContact.vue'
+import Vue from 'vue';
+import App from './App.vue';
+//import ListComponent from './components/ListContacts.vue';
+import SearchComponent from './components/SearchContact.vue';
+import CreateComponent from './components/CreateContact.vue';
+import EditComponent from './components/EditContact.vue';
+import ViewComponent from './components/ViewContact.vue';
+import Signup from './components/Signup.vue';
 
-import './quasar'
-//import 'bootstrap/dist/css/bootstrap.min.css'
+import './quasar';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 
 import VueAxios from 'vue-axios';
 import axios from 'axios';
@@ -17,13 +18,13 @@ Vue.use(VueAxios, axios);
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 const routes = [
   {
-      name: 'list',
+      name: 'signup',
       path: '/',
-      component: ListComponent
+      component: Signup
   },
   {
       name: 'create',
@@ -53,4 +54,4 @@ new Vue({
   router,
   render: h => h(App)
 
-}).$mount('#app')
+}).$mount('#app');
