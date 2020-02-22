@@ -33,7 +33,8 @@ router.post("/", (req, res, next) => {
                 hashedPassword: hash,
                 // more attributes to add later
             });
-            account.save()
+            account
+                .save()
                 .then(result => {
                     console.log(result);
                     res.status(201).json({
@@ -48,8 +49,6 @@ router.post("/", (req, res, next) => {
                     });
                 });
         });
-    }).catch(err => {
-        console.log(err);
     });
 });
 
