@@ -110,4 +110,37 @@ router.delete("/:accountId", (req, res, next) => {
         });
 });
 
+router.post("/login", (req, res, next) => {
+    //const username = req.params.username;
+    Account.find({"username" : req.body.username})
+        .exec()
+        .then(doc => {
+            const account = doc[0];
+            if (account){
+                console.log("From database", account);
+
+                bcrypt.compare(req.body.password, account.hashedPassword, function(err, result) {
+                    if (result) {
+                        res.status(200).json({
+                            message: "Login Successful"
+                        });
+                    } else {
+                        res.status(200).json({
+                            message: "Wrong passowrd or username"
+                        });
+                    }
+                })
+            } else {
+                res.status(404).json({
+                    message: "No valid account found for provided ID"
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
+});
+
+
 module.exports = router;

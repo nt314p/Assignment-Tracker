@@ -6,6 +6,7 @@ import CreateComponent from './components/CreateContact.vue';
 import EditComponent from './components/EditContact.vue';
 import ViewComponent from './components/ViewContact.vue';
 import Signup from './components/Signup.vue';
+import Login from './components/Login.vue';
 
 import './quasar';
 //import 'bootstrap/dist/css/bootstrap.min.css';
@@ -45,6 +46,11 @@ const routes = [
       name: 'search',
       path: '/search',
       component: SearchComponent
+  },
+  {
+      name: 'login',
+      path: '/login',
+      component: Login
   }
 ];
 
