@@ -26,15 +26,27 @@
           label="Username"
           lazy-rules
           :rules="[ val => val && val.length > 0 || 'Please enter a username']"
-        />       
+        />
 
         <q-input
           clearable
           filled
           v-model="account.password"
           label="Password"
+          type="password"
           lazy-rules
           :rules="[ val => val && val.length > 0 || 'Please enter a password']"
+        />
+
+        <q-input
+          clearable
+          filled
+          v-model="verifyPass"
+          label="Repeat Password"
+          type="password"
+          lazy-rules
+          :rules="[ (val => val && val.length > 0 || 'Please enter a password'),
+          (val => val && val == account.password || 'Passwords do not match')]"
         />
 
         <!--<q-input
@@ -60,6 +72,7 @@
 export default {
   data() {
     return {
+      verifyPass: "",
       account: {}
     };
   },

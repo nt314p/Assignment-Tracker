@@ -22,7 +22,7 @@ router.get("/", (req, res, next) => {
 });
 
 // Create new account
-router.post("/", (req, res, next) => {
+router.post("/", (req, res, next) => { // add check for unique password
     console.log("creating account");
     bcrypt.genSalt(saltRounds, (err, salt) => {
         bcrypt.hash(req.body.password, salt, (err, hash) => {
@@ -129,7 +129,7 @@ router.post("/login", (req, res, next) => {
                             message: "Wrong passowrd or username"
                         });
                     }
-                })
+                });
             } else {
                 res.status(404).json({
                     message: "No valid account found for provided ID"
