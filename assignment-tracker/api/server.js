@@ -13,6 +13,8 @@ const accountRoutes = require("./routes/accounts");
 //const assignmentRoutes = require("./routes/assignments");
 const uri = "mongodb+srv://dbAdmin:<nice try>@assignment-tracker-d9yti.mongodb.net/test?retryWrites=true&w=majority";
 
+const jwt = require('jsonwebtoken');
+
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true

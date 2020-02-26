@@ -4,20 +4,28 @@ const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 const Account = require("../models/account");
 const saltRounds = 10;
+const jwt = require('jsonwebtoken');
+
 
 // Get all accounts
-router.get("/", (req, res, next) => {
-    Account.find({}, (err, docs) => {
+router.get("/", verifyToken, (req, res, next) => {
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
         if (err) {
-            console.log(err);
-            res.status(500).json({
-                error: err
+            res.sendStatus(403);
+        } else { //reg code goes here
+            Account.find({}, (err, docs) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
+                } else {
+                    console.log(docs);
+                    res.status(200).json(docs);
+                }
+        
             });
-        } else {
-            console.log(docs);
-            res.status(200).json(docs);
         }
-
     });
 });
 
@@ -121,8 +129,14 @@ router.post("/login", (req, res, next) => {
 
                 bcrypt.compare(req.body.password, account.hashedPassword, function(err, result) {
                     if (result) {
-                        res.status(200).json({
-                            message: "Login Successful"
+                        // res.status(200).json({
+                        //     message: "Login Successful"
+                        // });
+
+                        jwt.sign({account}, 'tempSecretKey', (err, token) => {
+                            res.json({
+                                token
+                            });
                         });
                     } else {
                         res.status(200).json({
@@ -141,6 +155,28 @@ router.post("/login", (req, res, next) => {
             res.status(500).json({ error: err });
         });
 });
+
+// FORMAT OF TOKEN
+// Authorization: Bearer <access_token>
+
+function verifyToken(req, res, next) {
+    //get auth header value
+    const bearerHeader = req.headers['authorization'];
+    console.log(req);
+    if (typeof bearerHeader !== 'undefined') {
+        // Split at the space
+        const bearer = bearerHeader.split(' ');
+        //get token from array
+        const bearerToken = bearer[1];
+        // Set the token
+        req.token = bearerToken;
+        // Next middleware 
+        next();
+    } else {
+        //forbidden
+        res.sendStatus(403);
+    }
+}
 
 
 module.exports = router;

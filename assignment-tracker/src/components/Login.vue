@@ -58,7 +58,8 @@ export default {
   methods: {
     login() {
       let uri = "http://localhost:4000/accounts/login";
-      this.axios.post(uri, this.account).then(() => {
+      this.axios.post(uri, this.account).then((res) => {
+        console.log(res);
         this.$router.push({ name: "login" }); // change later, push to home page of account
       });
     },
