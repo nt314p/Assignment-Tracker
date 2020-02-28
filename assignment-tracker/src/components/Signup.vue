@@ -25,7 +25,8 @@
           v-model="account.username"
           label="Username"
           lazy-rules
-          :rules="[ val => val && val.length > 0 || 'Please enter a username']"
+          :rules="[ (val => val && val.length > 0 || 'Please enter a username'), 
+          (this.usernameRule)]"
         />
 
         <q-input
@@ -73,10 +74,21 @@ export default {
   data() {
     return {
       verifyPass: "",
-      account: {}
+      account: {},
+      usernameRule:
+        this.verifyUniqueUsername() == "false" ||
+        "This username is already taken"
     };
   },
   methods: {
+    verifyUniqueUsername() {
+      console.log("running")
+      let uri = "http://localhost:4000/accounts/checkUniqueUsername";
+      this.axios.post(uri, this.account).then((res) => {
+        console.log(res.data.message);
+        return res.data.message;
+      });
+    },
     createAccount() {
       let uri = "http://localhost:4000/accounts/";
       this.axios.post(uri, this.account).then(() => {

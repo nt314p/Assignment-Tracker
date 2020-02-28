@@ -30,7 +30,7 @@ router.get("/", verifyToken, (req, res, next) => {
 });
 
 // Create new account
-router.post("/", (req, res, next) => { // add check for unique password
+router.post("/", (req, res, next) => { // add check for unique username
     console.log("creating account");
     bcrypt.genSalt(saltRounds, (err, salt) => {
         bcrypt.hash(req.body.password, salt, (err, hash) => {
@@ -177,6 +177,28 @@ function verifyToken(req, res, next) {
         res.sendStatus(403);
     }
 }
+
+router.post("/checkUniqueUsername", (req, res, next) => {
+    console.log("running");
+    //console.log(Account.find({"username" : req.body.username}))
+    Account.find({"username" : req.body.username})
+        .exec()
+        .then(doc => {
+            if (doc.length > 0) {
+                res.status(200).json({
+                    message: "false"
+                });
+            } else {
+                res.status(200).json({
+                    message: "true"
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
+});
 
 
 module.exports = router;
