@@ -179,18 +179,16 @@ function verifyToken(req, res, next) {
 }
 
 router.post("/checkUniqueUsername", (req, res, next) => {
-    console.log("running");
-    //console.log(Account.find({"username" : req.body.username}))
     Account.find({"username" : req.body.username})
         .exec()
         .then(doc => {
             if (doc.length > 0) {
                 res.status(200).json({
-                    message: "false"
+                    result: false // username is not unique
                 });
             } else {
                 res.status(200).json({
-                    message: "true"
+                    result: true // username is unique
                 });
             }
         })

@@ -20,13 +20,16 @@
         />
 
         <q-input
+          ref="username"
           clearable
           filled
           v-model="account.username"
           label="Username"
+          debounce="50"
+          @input="this.verifyUniqueUsername"
           lazy-rules
-          :rules="[ (val => val && val.length > 0 || 'Please enter a username'), 
-          (this.usernameRule)]"
+          :rules="[(val => val && val.length > 0 || 'Please enter a username'), (val => this.isUniqueUsername || 'This username is already taken')
+          ]"
         />
 
         <q-input
@@ -50,17 +53,6 @@
           (val => val && val == account.password || 'Passwords do not match')]"
         />
 
-        <!--<q-input
-          clearable
-          filled
-          v-model="contact.phoneNumber"
-          label="Phone Number"
-          type="tel"
-          mask="phone"
-          unmasked-value
-          lazy-rules
-          :rules="[]"
-        />-->
         <div>
           <q-btn label="Submit" type="submit" color="primary" />
           <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
@@ -74,19 +66,17 @@ export default {
   data() {
     return {
       verifyPass: "",
-      account: {},
-      usernameRule:
-        this.verifyUniqueUsername() == "false" ||
-        "This username is already taken"
+      isUniqueUsername: false,
+      account: {}
     };
   },
   methods: {
-    verifyUniqueUsername() {
-      console.log("running")
+    verifyUniqueUsername(val) {
+      console.log("running");
       let uri = "http://localhost:4000/accounts/checkUniqueUsername";
-      this.axios.post(uri, this.account).then((res) => {
-        console.log(res.data.message);
-        return res.data.message;
+      this.axios.post(uri, { username: val }).then(res => {
+        this.isUniqueUsername = res.data.result;
+        this.$refs.username.validate()
       });
     },
     createAccount() {
