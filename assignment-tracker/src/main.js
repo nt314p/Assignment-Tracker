@@ -7,14 +7,18 @@ import EditComponent from './components/EditContact.vue';
 import ViewComponent from './components/ViewContact.vue';
 import Signup from './components/Signup.vue';
 import Login from './components/Login.vue';
+import PublicCalendar from './components/PublicCalendar.vue';
 
 import './quasar';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 
 import VueAxios from 'vue-axios';
 import axios from 'axios';
-
 Vue.use(VueAxios, axios);
+
+import Plugin from '@quasar/quasar-ui-qcalendar';
+import '@quasar/quasar-ui-qcalendar/dist/index.css';
+Vue.use(Plugin);
 
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
@@ -36,6 +40,11 @@ const routes = [
       name: 'view',
       path: '/view/:id',
       component: ViewComponent
+  },
+  {
+    name: 'public_calendar',
+    path: '/public_calendar',
+    component: PublicCalendar
   },
   {
       name: 'edit',
