@@ -55,6 +55,7 @@
                 :rules="[v => v && v.length > 0 || 'Field cannot be empty']"
                 autofocus
               />
+
               <q-input v-model="eventForm.details" label="Details" />
 
               <q-select
@@ -65,7 +66,6 @@
 
               <q-input
                 clearable
-                filled
                 v-model="eventForm.dueDate"
                 label="Due Date"
                 mask="date"
@@ -79,7 +79,6 @@
                   </q-icon>
                 </template>
               </q-input>
-
             </q-card-section>
             <q-card-actions align="right">
               <q-btn flat label="OK" type="submit" color="primary"></q-btn>
@@ -107,28 +106,26 @@
         day-padding="35px 0 0 0"
       >
         <template #day="{ date }">
-          <template v-if="calendarView.indexOf('agenda') < 0">
-            <template v-for="(event, index) in getEvents(date)">
-              <q-badge
-                :key="index"
-                style="width: 100%; cursor: pointer; height: 14px; max-height: 14px"
-                :class="badgeClasses(event, 'day')"
-                :style="badgeStyles(event, 'day')"
-                @click.stop.prevent="showEvent(event)"
-                :draggable="true"
-                @dragstart.native="(e) => onDragStart(e, event)"
-                @dragend.native="(e) => onDragEnd(e, event)"
-                @dragenter.native="(e) => onDragEnter(e, event)"
-                @touchmove.native="(e) => {}"
-              >
-                <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon>
-                <span class="ellipsis">{{ event.title }}</span>
-              </q-badge>
-            </template>
+          <template v-for="(event, index) in getEvents(date)">
+            <q-badge
+              :key="index"
+              style="width: 100%; cursor: pointer; height: 14px; max-height: 14px"
+              :class="badgeClasses(event, 'day')"
+              :style="badgeStyles(event, 'day')"
+              @click.stop.prevent="showEvent(event)"
+              :draggable="true"
+              @dragstart.native="(e) => onDragStart(e, event)"
+              @dragend.native="(e) => onDragEnd(e, event)"
+              @dragenter.native="(e) => onDragEnter(e, event)"
+              @touchmove.native="(e) => {}"
+            >
+              <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon>
+              <span class="ellipsis">{{ event.title }}</span>
+            </q-badge>
           </template>
         </template>
 
-        <template #day-header="{ date }">
+        <!--<template #day-header="{ date }">
           <div v-if="calendarView.indexOf('agenda') < 0" class="row justify-center">
             <template v-for="(event, index) in eventsMap[date]">
               <q-badge
@@ -157,9 +154,9 @@
               />
             </template>
           </div>
-        </template>
+        </template>-->
 
-        <template #day-body="data">
+        <!--<template #day-body="data">
           <template v-if="calendarView.indexOf('agenda') < 0">
             <template v-for="(event, index) in getEvents(data.date)">
               <q-badge
@@ -180,7 +177,7 @@
               </q-badge>
             </template>
           </template>
-        </template>
+        </template>-->
 
         <template #intervals-header="days">
           <div class="fit flex justify-center items-end">
@@ -363,6 +360,7 @@ export default {
     onSubmit() {
       this.saveEvent();
       console.log("submitted");
+      console.log(this.events);
     },
 
     showEvent(event) {
@@ -395,29 +393,30 @@ export default {
           const form = { ...self.eventForm };
           let update = false;
           if (self.contextDay.bgcolor) {
+            console.log("updating");
             // an update
             update = true;
           } else {
             // an add
+            console.log("adding");
           }
           const data = {
             title: form.title,
             details: form.details,
-            icon: form.icon,
+            type: form.type,
             bgcolor: form.bgcolor,
-            dueDate: String(form.dateTimeStart)
-              .slice(0, 10)
-              .replace(/\//g, "-")
+            dueDate: String(form.dueDate).replace(/\//g, '-')
           };
           if (update === true) {
             const index = self.findEventIndex(self.contextDay);
-            if (index >= 0) {
+            if (index != -1) {
               self.events.splice(index, 1, { ...data });
             }
           } else {
             // add to events array
             self.events.push(data);
           }
+          console.log(self.events);
           self.contextDay = null;
         }
       });
@@ -428,7 +427,11 @@ export default {
     },
 
     resetForm() {
-      this.eventForm = formDefault;
+      this.eventForm.bgcolor = formDefault.bgcolor;
+      this.eventForm.type = formDefault.type;
+      this.eventForm.title = formDefault.title;
+      this.eventForm.details = formDefault.details;
+      this.eventForm.dueDate = formDefault.dueDate;
     },
 
     isCssColor(color) {
@@ -437,7 +440,6 @@ export default {
 
     badgeClasses(infoEvent, type) {
       var color = infoEvent.bgcolor;
-      console.log("color is " + color);
       const cssColor = !!color && !!color.match(/^(#|(rgb|hsl)a?\()/);
       const isHeader = type === "header";
       return {
@@ -522,22 +524,11 @@ export default {
     editEvent(event) {
       this.resetForm();
       this.contextDay = { ...event };
-      let timestamp;
-      if (event.time) {
-        timestamp = QCalendar.parseTimestamp(event.date + " " + event.time);
-        const endTime = QCalendar.addToDate(timestamp, {
-          minute: event.duration
-        });
-        this.eventForm.dateTimeEnd = QCalendar.getDateTime(endTime);
-      } else {
-        timestamp = QCalendar.parseTimestamp(this.contextDay.date + " 00:00");
-      }
-      this.eventForm.dateTimeStart = QCalendar.getDateTime(timestamp);
-      this.eventForm.allDay = !event.time;
       this.eventForm.bgcolor = event.bgcolor;
-      this.eventForm.icon = event.icon;
+      this.eventForm.type = event.type;
       this.eventForm.title = event.title;
       this.eventForm.details = event.details;
+      this.eventForm.dueDate = event.dueDate;
       this.addEvent = true; // show dialog
     },
     deleteEvent(event) {
@@ -551,7 +542,8 @@ export default {
         if (
           event.title === this.events[i].title &&
           event.details === this.events[i].details &&
-          event.date === this.events[i].date
+          event.dueDate === this.events[i].dueDate &&
+          event.type === this.events[i].type
         ) {
           return i;
         }

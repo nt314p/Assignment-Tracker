@@ -4,7 +4,7 @@ import App from './App.vue';
 import SearchComponent from './components/SearchContact.vue';
 import CreateComponent from './components/CreateContact.vue';
 import EditComponent from './components/EditContact.vue';
-import ViewComponent from './components/ViewContact.vue';
+import ListComponent from './components/ListAssignments.vue';
 import Signup from './components/Signup.vue';
 import Login from './components/Login.vue';
 import PublicCalendar from './components/PublicCalendar.vue';
@@ -37,9 +37,9 @@ const routes = [
       component: CreateComponent
   },
   {
-      name: 'view',
-      path: '/view/:id',
-      component: ViewComponent
+      name: 'list',
+      path: '/list',
+      component: ListComponent
   },
   {
     name: 'public_calendar',
