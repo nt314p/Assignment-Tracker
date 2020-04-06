@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 // Get all accounts
 router.get("/", verifyToken, (req, res, next) => {
     jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
-        if (err) {
+        if (err || !authData.account.admin) {
             res.sendStatus(403);
         } else { //reg code goes here
             Account.find({}, (err, docs) => {
@@ -23,7 +23,7 @@ router.get("/", verifyToken, (req, res, next) => {
                     console.log(docs);
                     res.status(200).json(docs);
                 }
-        
+
             });
         }
     });
@@ -81,59 +81,114 @@ router.get("/:accountId", (req, res, next) => {
         });
 });
 
-// Update account by id
-router.patch("/:accountId", (req, res, next) => {
-    const id = req.params.accountId;
-    const updateOps = {};
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
-    }
-    Account.update({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-            console.log(result);
-            res.status(200).json(result);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                error: err
+//update password
+
+// NOT FUNCTIONAL: HASHED PASSWORD NOT UPDATING
+router.patch("/updatePass/:accountId", verifyToken, (req, res, next) => {
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err || authData.account._id == req.params.accountId) {
+            res.sendStatus(403);
+        } else {
+            bcrypt.compare(req.body.oldpassword, authData.account.hashedPassword, function (err, passResult) {
+                console.log(passResult)
+                if (passResult) {
+                    bcrypt.genSalt(saltRounds, (err, salt) => {
+                        bcrypt.hash(req.body.newpassword, salt, (err, hash) => {
+        
+                            const id = req.params.accountId;
+                            const updateOps = {};
+                            updateOps["hashedPassword"] = hash;
+        
+                            Account.update({ _id: id }, { $set: updateOps })
+                                .exec()
+                                .then(result => {
+                                    res.status(200).json(result);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).json({
+                                        error: err
+                                    });
+                                });
+                        });
+                    });
+                } else {
+                    res.status(200).json({
+                        message: "Wrong passowrd"
+                    });
+                }
             });
-        });
+        }
+    });
+});
+
+// Update account by id
+router.patch("/:accountId", verifyToken, (req, res, next) => {
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err || authData.account._id == req.params.accountId) {
+            res.sendStatus(403);
+        } else {
+            const id = req.params.accountId;
+            const updateOps = {};
+
+            updateOps["name"] = req.body.name;
+            updateOps["username"] = req.body.username;
+            updateOps["email"] = req.body.email;
+
+            Account.update({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(result => {
+                    console.log(result);
+                    res.status(200).json(result);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
+                });
+        }
+    });
 });
 
 // Delete account by id
 router.delete("/:accountId", (req, res, next) => {
-    const id = req.params.accountId;
-    Account.remove({ _id: id })
-        .exec()
-        .then(result => {
-            res.status(200).json(result);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                error: err
-            });
-        });
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err || authData.account._id == req.params.accountId) {
+            res.sendStatus(403);
+        } else {
+            const id = req.params.accountId;
+            Account.remove({ _id: id })
+                .exec()
+                .then(result => {
+                    res.status(200).json(result);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
+                });
+        }
+    });
 });
 
 router.post("/login", (req, res, next) => {
     //const username = req.params.username;
-    Account.find({"username" : req.body.username})
+    Account.find({ "username": req.body.username })
         .exec()
         .then(doc => {
             const account = doc[0];
-            if (account){
+            if (account) {
                 console.log("From database", account);
 
-                bcrypt.compare(req.body.password, account.hashedPassword, function(err, result) {
+                bcrypt.compare(req.body.password, account.hashedPassword, function (err, result) {
                     if (result) {
                         // res.status(200).json({
                         //     message: "Login Successful"
                         // });
 
-                        jwt.sign({account}, 'tempSecretKey', (err, token) => {
+                        jwt.sign({ account }, 'tempSecretKey', (err, token) => {
                             res.json({
                                 token
                             });
@@ -179,7 +234,7 @@ function verifyToken(req, res, next) {
 }
 
 router.post("/checkUniqueUsername", (req, res, next) => {
-    Account.find({"username" : req.body.username})
+    Account.find({ "username": req.body.username })
         .exec()
         .then(doc => {
             if (doc.length > 0) {

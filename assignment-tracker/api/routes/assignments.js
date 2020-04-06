@@ -19,7 +19,7 @@ const jwt = require('jsonwebtoken');
 */
 
 // Get all assignments
-router.get("/", verifyToken, (req, res, next) => { 
+router.get("/", verifyToken, (req, res, next) => {
     jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
         if (err) {
             res.sendStatus(403);
@@ -102,51 +102,92 @@ router.get("/:assignmentId", verifyToken, (req, res, next) => {
     });
 });
 
-// NOT FUNCTIONAL
-
 //get by course
 
-// router.get("/:course", (req, res, next) => {
-//     //const course = req.body.course;
-//     Account.find({"course" : req.body.course})
-//         .exec()
-//         .then(doc => {
-//             console.log("From database", doc);
-//             if (doc) {
-//                 res.status(200).json(doc);
-//             } else {
-//                 res.status(404).json({
-//                     message: "No valid assignment found for provided course"
-//                 });
-//             }
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.status(500).json({ error: err });
-//         });
-// });
+router.post("/course", verifyToken, (req, res, next) => {
+    //const course = req.body.course;
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            Assignment.find({ "course": req.body.course })
+                .exec()
+                .then(doc => {
+                    console.log("From database", doc);
+                    if (doc) {
+                        res.status(200).json(doc);
+                    } else {
+                        res.status(404).json({
+                            message: "No valid assignment found for provided course"
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                });
+        }
+    });
+});
 
 //get by date
 
-// router.get("/:duedate", (req, res, next) => {
-//     //const course = req.body.course;
-//     Account.find({"duedate" : req.body.duedate})
-//         .exec()
-//         .then(doc => {
-//             console.log("From database", doc);
-//             if (doc) {
-//                 res.status(200).json(doc);
-//             } else {
-//                 res.status(404).json({
-//                     message: "No valid assignment found for provided date"
-//                 });
-//             }
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.status(500).json({ error: err });
-//         });
-// });
+router.post("/date", verifyToken, (req, res, next) => {
+    //const course = req.body.course;
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            Assignment.find({ "duedate": req.body.duedate })
+                .exec()
+                .then(doc => {
+                    console.log("From database", doc);
+                    if (doc) {
+                        res.status(200).json(doc);
+                    } else {
+                        res.status(404).json({
+                            message: "No valid assignment found for provided date"
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                });
+        }
+    });
+});
+
+//month: 1-12
+router.post("/month", (req, res, next) => {
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            var year = req.body.year;
+            var month = req.body.month - 1;
+            var startDate = new Date(year, month, 1);
+            var endDate = new Date(year, month, new Date(year, month, 0).getDate());
+
+            Assignment.find({ "duedate": { "$gte": startDate, "$lt": endDate } })
+                .exec()
+                .then(doc => {
+                    console.log("From database", doc);
+                    if (doc) {
+                        res.status(200).json(doc);
+                    } else {
+                        res.status(404).json({
+                            message: "No valid assignment found for provided month"
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                });
+        }
+    });
+});
 
 // Update assignment by id
 router.patch("/:assignmentId", verifyToken, (req, res, next) => {

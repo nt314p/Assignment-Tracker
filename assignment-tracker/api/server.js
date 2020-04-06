@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 //const config = require('./DB.js');
 const accountRoutes = require("./routes/accounts");
 const assignmentRoutes = require("./routes/assignments");
+const courseRoutes = require("./routes/courses");
 const uri = "mongodb+srv://dbAdmin:<nice try>@assignment-tracker-d9yti.mongodb.net/test?retryWrites=true&w=majority";
 
 const jwt = require('jsonwebtoken');
@@ -46,6 +47,7 @@ app.use((req, res, next) => {
 
 app.use("/accounts", accountRoutes);
 app.use("/assignments", assignmentRoutes);
+app.use("/courses", courseRoutes);
 
 app.use((req, res, next) => {
   const error = new Error("Not found");
