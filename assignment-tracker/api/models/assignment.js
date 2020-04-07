@@ -15,7 +15,8 @@ const assignmentSchema = mongoose.Schema({
     name: String,
     type: String,
     course: String,
-    duedate: Date
+    duedate: Date,
+    createdby: String
 });
 
 module.exports = mongoose.model('Assignment', assignmentSchema);
