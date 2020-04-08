@@ -90,7 +90,7 @@ router.patch("/updatePass/:accountId", verifyToken, (req, res, next) => {
             res.sendStatus(403);
         } else {
             bcrypt.compare(req.body.oldpassword, authData.account.hashedPassword, function (err, passResult) {
-                console.log(passResult)
+                console.log(passResult);
                 if (passResult) {
                     bcrypt.genSalt(saltRounds, (err, salt) => {
                         bcrypt.hash(req.body.newpassword, salt, (err, hash) => {

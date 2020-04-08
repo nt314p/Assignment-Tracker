@@ -2,11 +2,10 @@ import Vue from 'vue';
 import App from './App.vue';
 //import ListComponent from './components/ListContacts.vue';
 import SearchComponent from './components/SearchContact.vue';
-import CreateComponent from './components/CreateContact.vue';
-import EditComponent from './components/EditContact.vue';
+import HomeComponent from './components/Home.vue';
 import ListComponent from './components/ListAssignments.vue';
-import Signup from './components/Signup.vue';
-import Login from './components/Login.vue';
+//import Signup from './components/Signup.vue';
+import Account from './components/Account.vue';
 import PublicCalendar from './components/PublicCalendar.vue';
 
 import './quasar';
@@ -27,14 +26,9 @@ Vue.config.productionTip = false;
 
 const routes = [
   {
-      name: 'signup',
+      name: 'home',
       path: '/',
-      component: Signup
-  },
-  {
-      name: 'create',
-      path: '/create',
-      component: CreateComponent
+      component: HomeComponent
   },
   {
       name: 'list',
@@ -42,14 +36,9 @@ const routes = [
       component: ListComponent
   },
   {
-    name: 'public_calendar',
-    path: '/public_calendar',
+    name: 'calendar',
+    path: '/calendar',
     component: PublicCalendar
-  },
-  {
-      name: 'edit',
-      path: '/edit/:id',
-      component: EditComponent
   },
   {
       name: 'search',
@@ -57,10 +46,11 @@ const routes = [
       component: SearchComponent
   },
   {
-      name: 'login',
-      path: '/login',
-      component: Login
-  }
+      name: 'account',
+      path: '/account',
+      component: Account
+  },
+  { path: '*', redirect: '/' }
 ];
 
 const router = new VueRouter({ mode: 'history', routes: routes});
@@ -70,3 +60,16 @@ new Vue({
   render: h => h(App)
 
 }).$mount('#app');
+
+// router.beforeEach((to, from, next) => {
+//   // redirect to login page if not logged in and trying to access a restricted page
+//   const publicPages = ['/login'];
+//   const authRequired = !publicPages.includes(to.path);
+//   const loggedIn = sessionStorage.getItem('token');
+
+//   if (authRequired && !loggedIn) {
+//     return next('/login');
+//   }
+
+//   next();
+// });

@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 const accountRoutes = require("./routes/accounts");
 const assignmentRoutes = require("./routes/assignments");
 const courseRoutes = require("./routes/courses");
-const uri = "mongodb+srv://dbAdmin:<nice try>@assignment-tracker-d9yti.mongodb.net/test?retryWrites=true&w=majority";
+const uri = "mongodb+srv://dbAdmin:httyd-t00th7355@assignment-tracker-d9yti.mongodb.net/test?retryWrites=true&w=majority";
 
 const jwt = require('jsonwebtoken');
 
