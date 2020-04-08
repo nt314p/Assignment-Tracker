@@ -52,7 +52,8 @@ router.post("/add", verifyToken, (req, res, next) => {
                 name: req.body.name,
                 type: req.body.type,
                 course: req.body.course,
-                duedate: req.body.duedate
+                duedate: req.body.duedate,
+                createdby: authData.account._id
                 // more attributes to add later
             });
             assignment
@@ -192,7 +193,7 @@ router.post("/month", (req, res, next) => {
 // Update assignment by id
 router.patch("/:assignmentId", verifyToken, (req, res, next) => {
     jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
-        if (err) {
+        if (err || authData.account._id == req.body.createdby || !authData.account.admin) {
             res.sendStatus(403);
         } else {
             const id = req.params.assignmentId;
@@ -222,22 +223,47 @@ router.patch("/:assignmentId", verifyToken, (req, res, next) => {
 // Delete assignment by id
 router.delete("/:assignmentId", verifyToken, (req, res, next) => {
     jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
-        if (err) {
-            res.sendStatus(403);
-        } else {
-            const id = req.params.assignmentId;
-            Assignment.remove({ _id: id })
-                .exec()
-                .then(result => {
-                    res.status(200).json(result);
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        error: err
+        Assignment.findById(req.params.assignmentId).exec()
+            .then(doc => {
+                if (doc) {
+                    console.log(authData.account._id + ", " + doc.createdby);
+                    if (err || authData.account._id != doc.createdby || !authData.account.admin) {
+                        if (authData != undefined) {
+                            console.log("not owner")
+                            res.sendStatus(200).json({
+                                message: "You aren't the owner of this assignment"
+                            });
+                        } else {
+                            console.log("log in")
+                            res.sendStatus(200).json({
+                                message: "You are not logged in"
+                            });
+                        }
+                    } else {
+                        const id = req.params.assignmentId;
+                        Assignment.remove({ _id: id })
+                            .exec()
+                            .then(result => {
+                                console.log("success")
+                                res.status(200).json(result);
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({
+                                    error: err
+                                });
+                            });
+                    }
+                } else {
+                    res.status(404).json({
+                        message: "No valid assignment found for provided ID"
                     });
-                });
-        }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+            });
     });
 });
 
@@ -247,7 +273,7 @@ router.delete("/:assignmentId", verifyToken, (req, res, next) => {
 function verifyToken(req, res, next) {
     //get auth header value
     const bearerHeader = req.headers['authorization'];
-    console.log(req);
+    //console.log(req);
     if (typeof bearerHeader !== 'undefined') {
         // Split at the space
         const bearer = bearerHeader.split(' ');
