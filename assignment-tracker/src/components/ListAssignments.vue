@@ -17,7 +17,8 @@
         </template>
       </q-table>
     </div>
-    <div v-else>
+    <div v-else align="center">
+      <br>
       <span style="font-size:16px">You're not logged in! Log in to view assignments.</span>
     </div>
   </div>

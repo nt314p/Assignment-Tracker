@@ -18,7 +18,7 @@
           clearable
           filled
           v-model="account.name"
-          label="Name"
+          label="Full Name"
           lazy-rules
           :rules="[ val => val && val.length > 0 || 'Please enter a name']"
         />
@@ -58,7 +58,7 @@
         />
 
         <div>
-          <q-btn label="Submit" type="submit" color="primary" />
+          <q-btn label="Create Account" type="submit" color="primary" />
           <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
         </div>
 
@@ -98,7 +98,7 @@
           :rules="[ val => val && val.length > 0 || 'Please enter your password']"
         />
         <div>
-          <q-btn label="Submit" type="submit" color="primary" />
+          <q-btn label="Login" type="submit" color="primary" />
           <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
         </div>
         <div style="max-width: 500px">
@@ -188,7 +188,7 @@ export default {
     createAccount() {
       let uri = "http://localhost:4000/accounts/";
       this.axios.post(uri, this.account).then(() => {
-        this.$router.push({ name: "home" }); // change later, push to home page of account
+        this.switchLogin();
       });
     },
     onReset() {

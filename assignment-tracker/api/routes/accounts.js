@@ -221,8 +221,8 @@ router.get("/func/getUsername", verifyToken, (req, res, next) => {
         if (err) {
             res.sendStatus(403);
         } else { 
-            console.log(authData.account.username);
-            res.json({ username: authData.account.username });
+            console.log(authData.account.name);
+            res.json({ username: authData.account.name });
         }
     });
 });

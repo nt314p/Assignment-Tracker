@@ -152,7 +152,8 @@
         </q-calendar>
       </div>
     </div>
-    <div v-else>
+    <div v-else align="center">
+      <br>
       <span style="font-size:16px">You're not logged in! Log in to view the calendar.</span>
     </div>
   </div>
