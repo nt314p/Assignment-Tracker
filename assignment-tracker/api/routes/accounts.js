@@ -153,7 +153,7 @@ router.patch("/:accountId", verifyToken, (req, res, next) => {
 });
 
 // Delete account by id
-router.delete("/:accountId", (req, res, next) => {
+router.delete("/:accountId", verifyToken, (req, res, next) => {
     jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
         if (err || authData.account._id == req.params.accountId) {
             res.sendStatus(403);
@@ -214,6 +214,18 @@ router.post("/login", (req, res, next) => {
 
 // FORMAT OF TOKEN
 // Authorization: Bearer <access_token>
+
+router.get("/func/getUsername", verifyToken, (req, res, next) => {
+    console.log(req);
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else { 
+            console.log(authData.account.username);
+            res.json({ username: authData.account.username });
+        }
+    });
+});
 
 function verifyToken(req, res, next) {
     //get auth header value
