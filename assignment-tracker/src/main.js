@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 //import ListComponent from './components/ListContacts.vue';
-import SearchComponent from './components/SearchContact.vue';
+//import SearchComponent from './components/SearchContact.vue';
 import HomeComponent from './components/Home.vue';
 import ListComponent from './components/ListAssignments.vue';
 //import Signup from './components/Signup.vue';
@@ -39,11 +39,6 @@ const routes = [
     name: 'calendar',
     path: '/calendar',
     component: PublicCalendar
-  },
-  {
-      name: 'search',
-      path: '/search',
-      component: SearchComponent
   },
   {
       name: 'account',

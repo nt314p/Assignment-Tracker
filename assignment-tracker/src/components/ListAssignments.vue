@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="q-pa-md">
+    <div v-if="loggedIn()" class="q-pa-md">
       <q-table
         :data="data"
         :columns="columns"
@@ -17,6 +17,9 @@
         </template>
       </q-table>
     </div>
+    <div v-else>
+      <span style="font-size:16px">You're not logged in! Log in to view assignments.</span>
+    </div>
   </div>
 </template>
  <script>
@@ -26,26 +29,41 @@ export default {
       separator: "horizontal",
       data: [],
       columns: [
-        { name: "name", label: "Name", field: "name" },
-        { name: "type", label: "Assignment Type", field: "type" },
-        { name: "course", label: "Course", field: "course" },
-        { name: "dueDate", label: "Due Date", field: "dueDate" },
+        { name: "name", label: "Name", field: "name", sortable: true },
+        {
+          name: "type",
+          label: "Assignment Type",
+          field: "type",
+          sortable: true
+        },
+        { name: "course", label: "Course", field: "course", sortable: true },
+        { name: "dueDate", label: "Due Date", field: "dueDate", sortable: true }
       ]
     };
   },
-  created() {
-    // function called once vue has been created
+  mounted() {
     let uri = "http://localhost:4000/assignments"; // make web service call
-    this.axios.get(uri, {headers:{"Authorization": "Bearer " + sessionStorage.getItem("token")}}).then(response => {
-      this.data = response.data; // grab contacts
-      for (var i = 0; i < this.data.length; i++) {
-        this.data[i].dueDate = this.data[i].dueDate.split("T")[0];
-      }
-    });
+    this.axios
+      .get(uri, {
+        headers: { Authorization: "Bearer " + sessionStorage.getItem("token") }
+      })
+      .then(response => {
+        this.data = response.data; // grab contacts
+        for (var i = 0; i < this.data.length; i++) {
+          this.data[i].dueDate = this.data[i].dueDate.split("T")[0];
+        }
+      })
+      .catch(err => {
+        if (err.response.status == 403) console.log("not logged in");
+      });
   },
   methods: {
     onRowClick(e, row) {
       this.$router.push({ name: "view", params: { id: row._id } });
+    },
+    loggedIn() {
+      let data = sessionStorage.getItem("token");
+      return data != null;
     }
   }
 };

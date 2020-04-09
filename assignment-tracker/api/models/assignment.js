@@ -13,9 +13,10 @@ const mongoose = require("mongoose");
 const assignmentSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name: String,
+    details: String,
     type: String,
     course: String,
-    duedate: Date,
+    dueDate: Date,
     createdby: String
 });
 

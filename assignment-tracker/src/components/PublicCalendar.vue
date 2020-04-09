@@ -1,139 +1,136 @@
 <!-- to install calendar: https://www.npmjs.com/package/@quasar/quasar-app-extension-qcalendar -->
 <template>
-  <div style="max-width: 800px; width: 100%;">
-    <q-dialog v-model="displayEvent">
-      <div>
-        <q-card v-if="event">
-          <q-toolbar
-            :class="displayClasses(event)"
-            :style="displayStyles(event)"
-            style="min-width: 400px;"
-          >
-            <q-toolbar-title>{{ event.title }}</q-toolbar-title>
-            <q-btn flat round color="white" icon="delete" v-close-popup @click="deleteEvent(event)"></q-btn>
-            <q-btn flat round color="white" icon="edit" v-close-popup @click="editEvent(event)"></q-btn>
-            <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
-          </q-toolbar>
-          <q-card-section class="inset-shadow">
-            {{ event.details }}
-            <div class="row full-width justify-start" style="padding-top: 12px;">
-              <div class="col-12">
-                <div class="row full-width justify-start">
-                  <div class="col-5" style="padding-left: 20px;">
-                    <strong>Assignment Type</strong>
-                  </div>
-                  <div class="col-7">{{ event.type }}</div>
-                </div>
-                <div class="row full-width justify-start">
-                  <div class="col-5" style="padding-left: 20px;">
-                    <strong>Due Date:</strong>
-                  </div>
-                  <div class="col-7">{{ event.dueDate }}</div>
-                </div>
-              </div>
-            </div>
-          </q-card-section>
-          <q-card-actions align="right">
-            <q-btn flat label="OK" color="primary" v-close-popup></q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
-    </q-dialog>
-
-    <q-dialog v-model="addEvent" no-backdrop-dismiss>
-      <div>
-        <q-form v-if="contextDay" ref="event" @submit="onSubmit" @reset="onReset">
-          <q-card v-if="addEvent" style="width: 400px;">
-            <q-toolbar class="bg-primary text-white">
-              <q-toolbar-title>{{ addOrUpdateEvent() }} Event</q-toolbar-title>
+  <div>
+    <div v-if="loggedIn()" style="max-width: 800px; width: 100%;">
+      <q-dialog v-model="displayEvent">
+        <div>
+          <q-card v-if="event">
+            <q-toolbar
+              :class="displayClasses(event)"
+              :style="displayStyles(event)"
+              style="min-width: 400px;"
+            >
+              <q-toolbar-title>{{ event.name }}</q-toolbar-title>
+              <q-btn
+                flat
+                round
+                color="white"
+                icon="delete"
+                v-close-popup
+                @click="deleteEvent(event)"
+              ></q-btn>
+              <q-btn flat round color="white" icon="edit" v-close-popup @click="editEvent(event)"></q-btn>
               <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
             </q-toolbar>
             <q-card-section class="inset-shadow">
-              <q-input
-                v-model="eventForm.title"
-                label="Title"
-                :rules="[v => v && v.length > 0 || 'Field cannot be empty']"
-                autofocus
-              />
-
-              <q-input v-model="eventForm.details" label="Details" />
-
-              <q-select
-                v-model="eventForm.type"
-                :options="assignmentOptions"
-                label="Assignment Type"
-              />
-
-              <q-input
-                clearable
-                v-model="eventForm.dueDate"
-                label="Due Date"
-                mask="date"
-                :rules="[]"
-              >
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                      <q-date v-model="eventForm.dueDate" @input="() => $refs.qDateProxy.hide()" />
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
+              {{ event.details }}
+              <div class="row full-width justify-start" style="padding-top: 12px;">
+                <div class="col-12">
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>Course</strong>
+                    </div>
+                    <div class="col-7">{{ event.course }}</div>
+                  </div>
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>Assignment Type</strong>
+                    </div>
+                    <div class="col-7">{{ event.type }}</div>
+                  </div>
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>Due Date:</strong>
+                    </div>
+                    <div class="col-7">{{ event.dueDate }}</div>
+                  </div>
+                </div>
+              </div>
             </q-card-section>
             <q-card-actions align="right">
-              <q-btn flat label="OK" type="submit" color="primary"></q-btn>
-              <q-btn flat label="Cancel" type="reset" color="primary" v-close-popup></q-btn>
+              <q-btn flat label="OK" color="primary" v-close-popup></q-btn>
             </q-card-actions>
           </q-card>
-        </q-form>
-      </div>
-    </q-dialog>
+        </div>
+      </q-dialog>
 
-    <div>
-      <q-calendar
-        ref="calendar"
-        class="calendar"
-        v-model="selectedDate"
-        animated
-        transition-prev="slide-right"
-        transition-next="slide-left"
-        :view="calendarView"
-        :hide-header="false"
-        @click:interval="addEventMenu"
-        @click:time="addEventMenu"
-        @click:day="addEventMenu"
-        @click:date="addEventMenu"
-        day-padding="35px 0 0 0"
-      >
-        <template #day="{ date }">
-          <template v-for="(event, index) in getEvents(date)">
-            <q-badge
-              :key="index"
-              style="width: 100%; cursor: pointer; height: 14px; max-height: 14px"
-              :class="badgeClasses(event, 'day')"
-              :style="badgeStyles(event, 'day')"
-              @click.stop.prevent="showEvent(event)"
-              :draggable="true"
-              @dragstart.native="(e) => onDragStart(e, event)"
-              @dragend.native="(e) => onDragEnd(e, event)"
-              @dragenter.native="(e) => onDragEnter(e, event)"
-              @touchmove.native="(e) => {}"
-            >
-              <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon>
-              <span class="ellipsis">{{ event.title }}</span>
-            </q-badge>
-          </template>
-        </template>
+      <q-dialog v-model="addEvent" no-backdrop-dismiss>
+        <div>
+          <q-form v-if="contextDay" ref="event" @submit="onSubmit" @reset="onReset">
+            <q-card v-if="addEvent" style="width: 400px;">
+              <q-toolbar class="bg-primary text-white">
+                <q-toolbar-title>{{ addOrUpdateEvent() }} Event</q-toolbar-title>
+                <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
+              </q-toolbar>
+              <q-card-section class="inset-shadow">
+                <q-input
+                  v-model="eventForm.name"
+                  label="Name"
+                  :rules="[v => v && v.length > 0 || 'Field cannot be empty']"
+                  autofocus
+                />
 
-        <!--<template #day-header="{ date }">
-          <div v-if="calendarView.indexOf('agenda') < 0" class="row justify-center">
-            <template v-for="(event, index) in eventsMap[date]">
+                <q-input v-model="eventForm.details" label="Details" />
+                <q-input v-model="eventForm.course" label="Course" />
+
+                <q-select
+                  v-model="eventForm.type"
+                  :options="assignmentOptions"
+                  label="Assignment Type"
+                />
+
+                <q-input
+                  clearable
+                  v-model="eventForm.dueDate"
+                  label="Due Date"
+                  mask="date"
+                  :rules="[]"
+                >
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer">
+                      <q-popup-proxy
+                        ref="qDateProxy"
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-date v-model="eventForm.dueDate" @input="() => $refs.qDateProxy.hide()" />
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="OK" type="submit" color="primary"></q-btn>
+                <q-btn flat label="Cancel" type="reset" color="primary" v-close-popup></q-btn>
+              </q-card-actions>
+            </q-card>
+          </q-form>
+        </div>
+      </q-dialog>
+
+      <div>
+        <q-calendar
+          ref="calendar"
+          class="calendar"
+          v-model="selectedDate"
+          animated
+          transition-prev="slide-right"
+          transition-next="slide-left"
+          :view="calendarView"
+          :hide-header="false"
+          @click:interval="addEventMenu"
+          @click:time="addEventMenu"
+          @click:day="addEventMenu"
+          @click:date="addEventMenu"
+          day-padding="35px 0 0 0"
+        >
+          <template #day="{ date }">
+            <template v-for="(event, index) in getEvents(date)">
               <q-badge
-                v-if="!event.time"
                 :key="index"
                 style="width: 100%; cursor: pointer; height: 14px; max-height: 14px"
-                :class="badgeClasses(event, 'header')"
-                :style="badgeStyles(event, 'header')"
+                :class="badgeClasses(event, 'day')"
+                :style="badgeStyles(event, 'day')"
                 @click.stop.prevent="showEvent(event)"
                 :draggable="true"
                 @dragstart.native="(e) => onDragStart(e, event)"
@@ -142,81 +139,22 @@
                 @touchmove.native="(e) => {}"
               >
                 <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon>
-                <span class="ellipsis">{{ event.title }}</span>
-              </q-badge>
-              <q-badge
-                v-else
-                :key="index"
-                class="q-ma-xs self-end"
-                :class="badgeClasses(event, 'header')"
-                :style="badgeStyles(event, 'header')"
-                style="width: 10px; max-width: 10px; height: 10px; max-height: 10px"
-              />
-            </template>
-          </div>
-        </template>-->
-
-        <!--<template #day-body="data">
-          <template v-if="calendarView.indexOf('agenda') < 0">
-            <template v-for="(event, index) in getEvents(data.date)">
-              <q-badge
-                v-if="event.time"
-                :key="index"
-                class="my-event justify-center"
-                :class="badgeClasses(event, 'body')"
-                :style="badgeStyles(event, 'body', data.timeStartPos, data.timeDurationHeight)"
-                @click.stop.prevent="showEvent(event)"
-                :draggable="true"
-                @dragstart.native="(e) => onDragStart(e, event)"
-                @dragend.native="(e) => onDragEnd(e, event)"
-                @dragenter.native="(e) => onDragEnter(e, event)"
-                @touchmove.native="(e) => {}"
-              >
-                <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon>
-                <span class="ellipsis">{{ event.title }}</span>
+                <span class="ellipsis">{{ event.name }}</span>
               </q-badge>
             </template>
           </template>
-        </template>-->
 
-        <template #intervals-header="days">
-          <div class="fit flex justify-center items-end">
-            <span class="q-calendar-daily__interval-text">{{ showOffset(days) }}</span>
-          </div>
-        </template>
-      </q-calendar>
+          <template #intervals-header="days">
+            <div class="fit flex justify-center items-end">
+              <span class="q-calendar-daily__interval-text">{{ showOffset(days) }}</span>
+            </div>
+          </template>
+        </q-calendar>
+      </div>
     </div>
-
-    <!--<q-calendar
-      v-model="selectedDate"
-      view="month"
-      locale="en-us"
-      :day-height="100"
-      @click:date="addEventMenu"
-      @mouseup="addEventMenu"
-    >-->
-
-    <!--@click:time="addEventMenu"
-    @click:week="addEventMenu"-->
-    <!--
-      <template #week="{ week, weekdays, miniMode }">
-        <template v-if="!miniMode">
-          <template v-for="(computedEvent, index) in getWeekEvents(week, weekdays)">
-            <q-badge
-              :key="index"
-              class="q-row-event"
-              :class="badgeClasses(computedEvent, 'day')"
-              :style="badgeStyles(computedEvent, 'day', week.length)"
-            >
-              <template v-if="computedEvent.event">
-                <q-icon :name="computedEvent.event.icon" class="q-mr-xs"></q-icon>
-                <span class="ellipsis">{{ computedEvent.event.title }}</span>
-              </template>
-            </q-badge>
-          </template>
-        </template>
-    </template>-->
-    <!--</q-calendar>-->
+    <div v-else>
+      <span style="font-size:16px">You're not logged in! Log in to view the calendar.</span>
+    </div>
   </div>
 </template>
 <script>
@@ -224,9 +162,10 @@
 import QCalendar from "@quasar/quasar-ui-qcalendar"; // ui is aliased from '@quasar/quasar-ui-qcalendar'
 
 const formDefault = {
-  title: "",
+  name: "",
   details: "",
   type: "",
+  course: "",
   dueDate: "",
   bgcolor: "#0000FF"
 };
@@ -249,73 +188,10 @@ export default {
       addEvent: false,
       contextDay: null,
       event: null,
-      /*events: [
-        {
-          title: "1st of the Month",
-          color: "orange",
-          start: getCurrentDay(1),
-          end: getCurrentDay(1)
-        },
-        {
-          title: "Sisters Birthday",
-          color: "green",
-          start: getCurrentDay(4),
-          end: getCurrentDay(4),
-          icon: "cake"
-        },
-        {
-          title: "Meeting",
-          color: "red",
-          start: getCurrentDay(8),
-          end: getCurrentDay(8),
-          icon: "group"
-        },
-        {
-          title: "Lunch",
-          color: "teal",
-          start: getCurrentDay(8),
-          end: getCurrentDay(8),
-          icon: "free_breakfast"
-        },
-        {
-          title: "Visit Mom",
-          color: "blue-grey",
-          start: getCurrentDay(20),
-          end: getCurrentDay(20),
-          icon: "card_giftcard"
-        },
-        {
-          title: "Conference",
-          color: "blue",
-          start: getCurrentDay(22),
-          end: getCurrentDay(22),
-          icon: "ondemand_video"
-        },
-        {
-          title: "Girlfriend",
-          color: "teal",
-          start: getCurrentDay(22),
-          end: getCurrentDay(22),
-          icon: "fastfood"
-        },
-        {
-          title: "Rowing",
-          color: "purple",
-          start: getCurrentDay(27),
-          end: getCurrentDay(28),
-          icon: "rowing"
-        },
-        {
-          title: "Vacation",
-          color: "purple",
-          start: getCurrentDay(22),
-          end: getCurrentDay(29),
-          icon: "flight"
-        }
-      ],*/
+
       events: [
         {
-          title: "Test 1",
+          name: "Test 1",
           details: "This is a first test for assignment tracker!",
           dueDate: getCurrentDay(1),
           type: "Homework",
@@ -331,6 +207,9 @@ export default {
         "Other"
       ]
     };
+  },
+  mounted() {
+    this.getData();
   },
   methods: {
     addEventMenu(day) {
@@ -394,32 +273,78 @@ export default {
           let update = false;
           if (self.contextDay.bgcolor) {
             console.log("updating");
-            // an update
             update = true;
           } else {
-            // an add
             console.log("adding");
           }
           const data = {
-            title: form.title,
+            name: form.name,
             details: form.details,
             type: form.type,
-            bgcolor: form.bgcolor,
-            dueDate: String(form.dueDate).replace(/\//g, '-')
+            course: form.course,
+            bgcolor: "#003CB3",
+            dueDate: String(form.dueDate).replace(/\//g, "-")
           };
-          if (update === true) {
-            const index = self.findEventIndex(self.contextDay);
-            if (index != -1) {
-              self.events.splice(index, 1, { ...data });
-            }
+          if (update) {
+            // send assignment update request to server
+            var id = this.event._id;
+            console.log(id);
+            let uri = "http://localhost:4000/assignments/" + id;
+            this.axios
+              .patch(uri, data, {
+                headers: {
+                  Authorization: "Bearer " + sessionStorage.getItem("token")
+                }
+              })
+              .then(res => {
+                console.log(res);
+                this.getData();
+              })
+              .catch(err => {
+                console.log(err);
+              });
           } else {
-            // add to events array
-            self.events.push(data);
+            // send assignment update to server
+            let uri = "http://localhost:4000/assignments/add";
+            this.axios
+              .post(uri, data, {
+                headers: {
+                  Authorization: "Bearer " + sessionStorage.getItem("token")
+                }
+              })
+              .then(res => {
+                console.log(res);
+                this.getData();
+              })
+              .catch(err => {
+                console.log(err);
+              });
           }
+
           console.log(self.events);
           self.contextDay = null;
         }
       });
+    },
+    getData() {
+      console.log("fetching new data...");
+      let uri = "http://localhost:4000/assignments"; // make web service call
+      this.axios
+        .get(uri, {
+          headers: {
+            Authorization: "Bearer " + sessionStorage.getItem("token")
+          }
+        })
+        .then(response => {
+          this.events = response.data; // grab events
+          for (var i = 0; i < this.events.length; i++) {
+            this.events[i].dueDate = this.events[i].dueDate.split("T")[0];
+            this.events[i].bgcolor = "#003CB3";
+          }
+        })
+        .catch(err => {
+          if (err.response.status == 403) console.log("not logged in");
+        });
     },
 
     onReset() {
@@ -429,7 +354,8 @@ export default {
     resetForm() {
       this.eventForm.bgcolor = formDefault.bgcolor;
       this.eventForm.type = formDefault.type;
-      this.eventForm.title = formDefault.title;
+      this.eventForm.name = formDefault.name;
+      this.eventForm.course = formDefault.course;
       this.eventForm.details = formDefault.details;
       this.eventForm.dueDate = formDefault.dueDate;
     },
@@ -479,114 +405,42 @@ export default {
       }
       if (currentDate != null) return eventsOnDate;
       else return eventsOnDate;
-      // const events = []
-      // for (let i = 0; i < this.events.length; ++i) {
-      //   let added = false
-      //   const event = this.events[i]
-      //   if (event.date === dt) {
-      //     if (event.time !== void 0) {
-      //       if (events.length > 0) {
-      //         // check for overlapping times
-      //         const startTime = QCalendar.parseTimestamp(event.date + ' ' + event.time)
-      //         const endTime = QCalendar.addToDate(startTime, { minute: event.duration })
-      //         for (let j = 0; j < events.length; ++j) {
-      //           const evt = events[j]
-      //           if (evt.time !== void 0) {
-      //             const startTime2 = QCalendar.parseTimestamp(evt.date + ' ' + evt.time)
-      //             const endTime2 = QCalendar.addToDate(startTime2, { minute: evt.duration })
-      //             if (QCalendar.isBetweenDates(startTime, startTime2, endTime2) || QCalendar.isBetweenDates(endTime, startTime2, endTime2)) {
-      //               evt.side = 'left'
-      //               event.side = 'right'
-      //               events.push(event)
-      //               added = true
-      //               break
-      //             }
-      //           }
-      //         }
-      //       }
-      //     }
-      //     if (!added) {
-      //       event.side = void 0
-      //       events.push(event)
-      //     }
-      //   } else if (event.days) {
-      //     // check for overlapping dates
-      //     const startDate = QCalendar.parseTimestamp(event.date)
-      //     const endDate = QCalendar.addToDate(startDate, { day: event.days })
-      //     if (QCalendar.isBetweenDates(currentDate, startDate, endDate)) {
-      //       events.push(event)
-      //       added = true
-      //     }
-      //   }
-      // }
-      // return events
     },
     editEvent(event) {
       this.resetForm();
       this.contextDay = { ...event };
       this.eventForm.bgcolor = event.bgcolor;
       this.eventForm.type = event.type;
-      this.eventForm.title = event.title;
+      this.eventForm.name = event.name;
       this.eventForm.details = event.details;
       this.eventForm.dueDate = event.dueDate;
       this.addEvent = true; // show dialog
     },
     deleteEvent(event) {
-      const index = this.findEventIndex(event);
-      if (index >= 0) {
-        this.events.splice(index, 1);
-      }
+      var id = event._id;
+      console.log(id);
+      let uri = "http://localhost:4000/assignments/" + id;
+      this.axios
+        .delete(uri, {
+          headers: {
+            Authorization: "Bearer " + sessionStorage.getItem("token")
+          }
+        })
+        .then(res => {
+          console.log(res);
+          this.getData();
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     findEventIndex(event) {
       for (let i = 0; i < this.events.length; ++i) {
-        if (
-          event.title === this.events[i].title &&
-          event.details === this.events[i].details &&
-          event.dueDate === this.events[i].dueDate &&
-          event.type === this.events[i].type
-        ) {
+        if (event.id === this.events[i].id) {
           return i;
         }
       }
     },
-
-    // getWeekEvents(week /*, weekdays*/) {
-    //   const tsFirstDay = QCalendar.parsed(week[0].date + " 00:00");
-    //   const tsLastDay = QCalendar.parsed(week[week.length - 1].date + " 23:59");
-    //   const firstDay = QCalendar.getDayIdentifier(tsFirstDay);
-    //   const lastDay = QCalendar.getDayIdentifier(tsLastDay);
-
-    //   const eventsWeek = [];
-    //   this.events.forEach((event, id) => {
-    //     const tsStartDate = QCalendar.parsed(event.start + " 00:00");
-    //     const tsEndDate = QCalendar.parsed(event.end + " 23:59");
-    //     const startDate = QCalendar.getDayIdentifier(tsStartDate);
-    //     const endDate = QCalendar.getDayIdentifier(tsEndDate);
-
-    //     if (this.isBetweenDatesWeek(startDate, endDate, firstDay, lastDay)) {
-    //       const left = QCalendar.daysBetween(tsFirstDay, tsStartDate, true);
-    //       const right = QCalendar.daysBetween(tsEndDate, tsLastDay, true);
-
-    //       eventsWeek.push({
-    //         id, // index event
-    //         left, // Position initial day [0-6]
-    //         right, // Number days available
-    //         size: week.length - (left + right), // Size current event (in days)
-    //         event // Info
-    //       });
-    //     }
-    //   });
-
-    //   const events = [];
-    //   if (eventsWeek.length > 0) {
-    //     const infoWeek = eventsWeek.sort((a, b) => a.left - b.left);
-    //     infoWeek.forEach((event, i) => {
-    //       this.insertEvent(events, week.length, infoWeek, i, 0, 0);
-    //     });
-    //   }
-
-    //   return events;
-    // },
 
     insertEvent(events, weekLength, infoWeek, index, availableDays, level) {
       const iEvent = infoWeek[index];
@@ -637,6 +491,10 @@ export default {
         dateEnd === weekEnd ||
         (dateEnd > weekEnd && dateStart <= weekEnd)
       );
+    },
+    loggedIn() {
+      let data = sessionStorage.getItem("token");
+      return data != null;
     }
   }
 };

@@ -27,7 +27,7 @@
           to="/calendar"
           exact
         />
-        <q-route-tab name="search" icon="search" label="Search" to="/search" exact />
+        <!--<q-route-tab name="search" icon="search" label="Search" to="/search" exact />-->
         <!--<q-route-tab name="create" icon="add_box" to="/create" exact />-->
         <q-route-tab name="account" icon="account_box" label="Account" to="/account" exact />
       </q-tabs>
