@@ -8,9 +8,10 @@
         <h2>Welcome to Assignment Tracker,</h2>
         <h3 id="usernameBox" ></h3>
       </div>
-      <div v-else class="q-pa-md" style="max-width: 500px">
+      <div v-else>
         <h2>Welcome to Assignment Tracker!</h2>
         <q-btn label="Log In" color="primary" @click="login()" />
+        <p />
         <q-btn label="Create Account" color="primary" @click="login()" />
       </div>
     </div>
@@ -40,8 +41,8 @@ export default {
       }
       return data != null;
     },
-    logIn() {
-      this.$router.push({ name: "account" });
+    login() {
+      this.$router.push({ name : "account" });
     }
   }
 };
