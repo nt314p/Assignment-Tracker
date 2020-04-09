@@ -6,7 +6,7 @@
 
       <div v-if="loggedIn()">
         <h2>Welcome to Assignment Tracker,</h2>
-        <h3 id="usernameBox"></h3>
+        <h3 id="usernameBox" ></h3>
       </div>
       <div v-else class="q-pa-md" style="max-width: 500px">
         <h2>Welcome to Assignment Tracker!</h2>
@@ -29,13 +29,14 @@ export default {
   methods: {
     loggedIn() {
       let data = sessionStorage.getItem("token");
-      console.log(data);
       if (data != null) {
         let uri = "http://localhost:4000/accounts/func/getUsername";
-        this.axios.get(uri, { headers: { Authorization: "Bearer " + data } }).then(res => {
-          console.log(res);
-          this.username = res.username;
-        });
+        this.axios
+          .get(uri, { headers: { Authorization: "Bearer " + data } })
+          .then(res => {
+            this.username = res.data.username;
+            document.getElementById("usernameBox").innerText = this.username;
+          });
       }
       return data != null;
     },
