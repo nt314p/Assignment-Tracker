@@ -11,7 +11,7 @@
         <template v-slot:no-data="{ icon, message, filter }">
           <div class="full-width row flex-center text-accent q-gutter-sm">
             <q-icon size="2em" name="sentiment_dissatisfied" />
-            <span>Error 404. You may have lots of friends but none of them want you to have their contact or talk to them ever.</span>
+            <span>No assignments were found.</span>
             <q-icon size="2em" :name="filter ? 'filter_b_and_w' : icon" />
           </div>
         </template>
@@ -26,25 +26,20 @@ export default {
       separator: "horizontal",
       data: [],
       columns: [
-        { name: "firstName", label: "First Name", field: "firstName" },
-        { name: "lastName", label: "Last Name", field: "lastName" },
-        { name: "phoneNumber", label: "Phone Number", field: "phoneNumber" },
-        { name: "email", label: "Email", field: "email" },
-        { name: "bday", label: "Birthday", field: "bday" }
+        { name: "name", label: "Name", field: "name" },
+        { name: "type", label: "Assignment Type", field: "type" },
+        { name: "course", label: "Course", field: "course" },
+        { name: "dueDate", label: "Due Date", field: "dueDate" },
       ]
     };
   },
   created() {
     // function called once vue has been created
-    let uri = "http://localhost:4000/contacts"; // make web service call
-    this.axios.get(uri).then(response => {
+    let uri = "http://localhost:4000/assignments"; // make web service call
+    this.axios.get(uri, {headers:{"Authorization": "Bearer " + sessionStorage.getItem("token")}}).then(response => {
       this.data = response.data; // grab contacts
       for (var i = 0; i < this.data.length; i++) {
-        this.data[i].bday = this.data[i].bday.split("T")[0];
-        this.data[i].phoneNumber = this.data[i].phoneNumber.replace(
-          /(\d{3})(\d{3})(\d{4})/,
-          "($1) $2-$3"
-        );
+        this.data[i].dueDate = this.data[i].dueDate.split("T")[0];
       }
     });
   },

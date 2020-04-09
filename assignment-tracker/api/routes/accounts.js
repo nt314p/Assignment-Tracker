@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 const Account = require("../models/account");
+const Course = require("../models/course");
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 
@@ -94,11 +95,11 @@ router.patch("/updatePass/:accountId", verifyToken, (req, res, next) => {
                 if (passResult) {
                     bcrypt.genSalt(saltRounds, (err, salt) => {
                         bcrypt.hash(req.body.newpassword, salt, (err, hash) => {
-        
+
                             const id = req.params.accountId;
                             const updateOps = {};
                             updateOps["hashedPassword"] = hash;
-        
+
                             Account.update({ _id: id }, { $set: updateOps })
                                 .exec()
                                 .then(result => {
@@ -251,6 +252,18 @@ router.post("/checkUniqueUsername", (req, res, next) => {
             console.log(err);
             res.status(500).json({ error: err });
         });
+});
+
+router.post("/addCourse", (req, res, next) => {
+    jwt.verify(req.token, 'tempSecretKey', (err, authData) => {
+        Course.find({ _id: req.body.id })
+            .exec()
+            .then(doc => {
+                res.status(200).json({
+                    result: doc
+                });
+            });
+    });
 });
 
 
