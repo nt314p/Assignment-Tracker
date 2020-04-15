@@ -29,11 +29,8 @@
           filled
           v-model="account.username"
           label="Username"
-          debounce="50"
-          @input="this.verifyUniqueUsername"
-          lazy-rules
-          :rules="[(val => val && val.length > 0 || 'Please enter a username'), (val => this.isUniqueUsername || 'This username is already taken')
-          ]"
+          debounce="200"
+          :rules="[ usernameRule ]"
         />
 
         <q-input
@@ -122,7 +119,6 @@ export default {
   data() {
     return {
       verifyPass: "",
-      isUniqueUsername: false,
       signUp: true,
       account: {},
       wrongCreds: ""
@@ -136,7 +132,6 @@ export default {
     },
     loggedIn() {
       let data = sessionStorage.getItem("token");
-      console.log(data);
       return data != null;
     },
     switchSignup() {
@@ -177,12 +172,17 @@ export default {
           console.log(this.wrongCreds);
         });
     },
-    verifyUniqueUsername(val) {
-      console.log("running");
-      let uri = "http://localhost:4000/accounts/checkUniqueUsername";
-      this.axios.post(uri, { username: val }).then(res => {
-        this.isUniqueUsername = res.data.result;
-        this.$refs.username.validate();
+    usernameRule(val) {
+      return new Promise(resolve => {
+        let uri = "http://localhost:4000/accounts/checkUniqueUsername";
+        this.axios.post(uri, { username: val }).then(res => {
+          console.log("call back on unique check: " + res.data.result);
+          if (res.data.result) {
+            resolve((val && val.length > 0) || "Please enter a username");
+          } else {
+            resolve(false || "This username is already taken");
+          }
+        });
       });
     },
     createAccount() {

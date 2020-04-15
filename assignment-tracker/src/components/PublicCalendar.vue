@@ -171,14 +171,14 @@ const formDefault = {
   bgcolor: "#0000FF"
 };
 
-const CURRENT_DAY = new Date();
+// const CURRENT_DAY = new Date();
 
-function getCurrentDay(day) {
-  const newDay = new Date(CURRENT_DAY);
-  newDay.setDate(day);
-  const tm = QCalendar.parseDate(newDay);
-  return tm.date;
-}
+// function getCurrentDay(day) {
+//   const newDay = new Date(CURRENT_DAY);
+//   newDay.setDate(day);
+//   const tm = QCalendar.parseDate(newDay);
+//   return tm.date;
+// }
 
 export default {
   data() {
@@ -190,15 +190,7 @@ export default {
       contextDay: null,
       event: null,
 
-      events: [
-        {
-          name: "Test 1",
-          details: "This is a first test for assignment tracker!",
-          dueDate: getCurrentDay(1),
-          type: "Homework",
-          bgcolor: "#003CB3"
-        }
-      ],
+      events: [],
       eventForm: { ...formDefault },
       assignmentOptions: [
         "Homework",
@@ -218,6 +210,7 @@ export default {
       this.contextDay = { ...day };
       this.eventForm.dueDate = QCalendar.getDateTime(day);
       this.eventForm.type = "";
+      this.eventForm.course = "";
       this.eventForm.bgcolor = "#0000FF"; // starting color
       this.addEvent = true; // show dialog
     },
@@ -413,6 +406,7 @@ export default {
       this.eventForm.bgcolor = event.bgcolor;
       this.eventForm.type = event.type;
       this.eventForm.name = event.name;
+      this.eventForm.course = event.course;
       this.eventForm.details = event.details;
       this.eventForm.dueDate = event.dueDate;
       this.addEvent = true; // show dialog
