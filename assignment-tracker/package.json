@@ -10,7 +10,7 @@
   "dependencies": {
     "@quasar/extras": "^1.6.1",
     "@quasar/quasar-ui-qcalendar": "^1.5.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.4",
     "quasar": "^1.9.13",
     "vue": "^2.6.11",
